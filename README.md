@@ -28,7 +28,7 @@ Pkcs11Interop is a free, open-source library. You can find more details [here](h
 
 This repository demonstrates how to sign PDF documents in .NET using **GroupDocs.Signature** together with a hardware token (dongle) via **Pkcs11Interop**. The signing process combines the convenience of GroupDocs with the security of PKCS#11 hardware tokens.
 
-[![diagram](https://raw.githubusercontent.com/groupdocs-signature/GroupDocs.Signature-for-.NET-PKCS11-Sample/blob/master/images/customhash_pkcs11_diagram.png]
+[![diagram](https://github.com/groupdocs-signature/GroupDocs.Signature-for-.NET-PKCS11-Sample/blob/master/images/customhash_pkcs11_diagram.png)]
 
 
 1. **Provide a PDF Document** – You start by specifying the PDF file that you want to sign.  
