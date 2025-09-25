@@ -19,13 +19,12 @@
  *  Jaroslav IMRICH <jimrich@jimrich.sk>
  */
 
-using System;
-using System.Collections.Generic;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
+
 // Note: Code in this file is maintained manually.
 
-namespace Net.Pkcs11Interop.Tests.HighLevelAPI
+namespace GroupDocs.Signature_for_.NET_PKCS11_Sample
 {
     /// <summary>
     /// Helper methods for HighLevelAPI tests.

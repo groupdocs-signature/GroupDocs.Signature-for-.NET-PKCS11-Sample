@@ -19,13 +19,9 @@
  *  Jaroslav IMRICH <jimrich@jimrich.sk>
  */
 
-using System;
-using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using Net.Pkcs11Interop.Logging;
 using LLA40 = Net.Pkcs11Interop.LowLevelAPI40;
 using LLA41 = Net.Pkcs11Interop.LowLevelAPI41;
 using LLA80 = Net.Pkcs11Interop.LowLevelAPI80;
@@ -33,7 +29,7 @@ using LLA81 = Net.Pkcs11Interop.LowLevelAPI81;
 
 // Note: Code in this file is maintained manually.
 
-namespace Net.Pkcs11Interop.Tests
+namespace GroupDocs.Signature_for_.NET_PKCS11_Sample
 {
     /// <summary>
     /// Test settings.

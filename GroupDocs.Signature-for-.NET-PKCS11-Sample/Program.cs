@@ -4,197 +4,151 @@ using GroupDocs.Signature.Domain;
 using GroupDocs.Signature.Options;
 using Net.Pkcs11Interop.Common;
 using Net.Pkcs11Interop.HighLevelAPI;
-using Net.Pkcs11Interop.Tests;
-using Net.Pkcs11Interop.Tests.HighLevelAPI;
 
-class Program
+namespace GroupDocs.Signature_for_.NET_PKCS11_Sample
 {
-    static void Main(string[] args)
+    class Program
     {
-        Console.WriteLine("=== PDF Signing with GroupDocs.Signature & PKCS#11 ===");
-
-        try
+        static void Main(string[] args)
         {
-            // Load license
-            var licensePath = "licPath";
-            new License().SetLicense(licensePath);
-            Console.WriteLine("[INFO] License applied");
-            
-            // Getting Started with Pkcs11Interop
-            // Specify the path to unmanaged PKCS#11 library provided by the cryptographic device vendor
-            string pkcs11LibraryPath = @"c:\SoftHSM2\lib\softhsm2-x64.dll";
-            Pkcs11InteropSetup(pkcs11LibraryPath);
-        
-            string inputPdf = @"c:\input.pdf";
-            string outputPdf = @"c:\output.pdf";
-            
-            // Perform signing
-            SignPdfWithX509Certificate2(inputPdf, outputPdf);
+            Console.WriteLine("=== PDF Signing with GroupDocs.Signature & PKCS#11 (Pkcs11Interop v5) ===");
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"[SUCCESS] Signed file created at: {outputPdf}");
-            Console.ResetColor();
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("[ERROR] " + ex.Message);
-            Console.ResetColor();
-        }
-    }
-
-    private static void Pkcs11InteropSetup(string pkcs11LibraryPath)
-    {
-        // Create factories used by Pkcs11Interop library
-        Pkcs11InteropFactories factories = new Pkcs11InteropFactories();
-
-        // Load unmanaged PKCS#11 library
-        using (IPkcs11Library pkcs11Library =
-               factories.Pkcs11LibraryFactory.LoadPkcs11Library(factories, pkcs11LibraryPath,
-                   AppType.MultiThreaded))
-        {
-            // Show general information about loaded library
-            ILibraryInfo libraryInfo = pkcs11Library.GetInfo();
-
-            Console.WriteLine("Library");
-            Console.WriteLine("  Manufacturer:       " + libraryInfo.ManufacturerId);
-            Console.WriteLine("  Description:        " + libraryInfo.LibraryDescription);
-            Console.WriteLine("  Version:            " + libraryInfo.LibraryVersion);
-
-            // Get list of all available slots
-            foreach (ISlot slot in pkcs11Library.GetSlotList(SlotsType.WithOrWithoutTokenPresent))
+            try
             {
-                // Show basic information about slot
-                ISlotInfo slotInfo = slot.GetSlotInfo();
+                // -------------- FILL THESE VALUES --------------
+                string licensePath = @"C:\path\to\license.lic"; // or null if you don't use license
+                string pkcs11LibraryPath = @"C:\path\to\watchdata-pkcs11.dll"; // your PKCS#11 DLL
+                string userPin = "123456"; // user PIN for the token
+                // -----------------------------------------------
 
-                Console.WriteLine();
-                Console.WriteLine("Slot");
-                Console.WriteLine("  Manufacturer:       " + slotInfo.ManufacturerId);
-                Console.WriteLine("  Description:        " + slotInfo.SlotDescription);
-                Console.WriteLine("  Token present:      " + slotInfo.SlotFlags.TokenPresent);
-
-                if (slotInfo.SlotFlags.TokenPresent)
+                // apply a license if you have one
+                if (File.Exists(licensePath))
                 {
-                    // Show basic information about token present in the slot
-                    ITokenInfo tokenInfo = slot.GetTokenInfo();
-
-                    Console.WriteLine("Token");
-                    Console.WriteLine("  Manufacturer:       " + tokenInfo.ManufacturerId);
-                    Console.WriteLine("  Model:              " + tokenInfo.Model);
-                    Console.WriteLine("  Serial number:      " + tokenInfo.SerialNumber);
-                    Console.WriteLine("  Label:              " + tokenInfo.Label);
-
-                    // Show list of mechanisms (algorithms) supported by the token
-                    Console.WriteLine("Supported mechanisms: ");
-                    foreach (CKM mechanism in slot.GetMechanismList())
-                        Console.WriteLine("  " + mechanism);
+                    new License().SetLicense(licensePath);
+                    Console.WriteLine("[INFO] GroupDocs license applied.");
                 }
+
+                // configure signer static settings used inside Pkcs11DigitalSigner
+                Pkcs11DigitalSigner.Pkcs11LibraryPath = pkcs11LibraryPath;
+                Pkcs11DigitalSigner.UserPin = userPin;
+
+                string inputPdf = @"C:\temp\input.pdf";
+                string outputPdf = @"C:\temp\output_signed.pdf";
+
+                SignPdfWithX509Certificate2(inputPdf, outputPdf);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"[SUCCESS] Signed file created at: {outputPdf}");
+                Console.ResetColor();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("[ERROR] " + ex);
+                Console.ResetColor();
             }
         }
-    }
-    private static void SignPdfWithX509Certificate2(string inputPdf, string outputPdf)
-    {
-        if (ValidateInputOutputFiles(inputPdf, outputPdf)) return;
-        
-        // Load certificate from Windows store (e.g., by subject name)
-        var store = new X509Store(StoreLocation.CurrentUser);
-        store.Open(OpenFlags.ReadOnly);
 
-        X509Certificate2? cert = store.Certificates
-            .Find(X509FindType.FindBySubjectName, "YourCertificateSubject", false)
-            .OfType<X509Certificate2>()
-            .FirstOrDefault();
-
-        store.Close();
-
-        if (cert == null)
+        private static void SignPdfWithX509Certificate2(string inputPdf, string outputPdf)
         {
-            Console.WriteLine("No certificates were found.");
-            return;
+            // basic validation
+            if (!File.Exists(inputPdf))
+            {
+                Console.WriteLine("Input PDF does not exist: " + inputPdf);
+                return;
+            }
+
+            // load certificate from Windows store by subject name (adjust as needed)
+            var store = new X509Store(StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+
+            // 1. Try Windows store first
+            X509Certificate2? cert = store.Certificates
+                .Find(X509FindType.FindBySubjectName, "YourCertificateSubject", false)
+                .OfType<X509Certificate2>()
+                .FirstOrDefault();
+
+            store.Close();
+
+            // 2. If not found in a store, try reading from a token
+            if (cert == null)
+            {
+                Console.WriteLine("[WARN] Certificate not found in Windows store. Trying to fetch directly from token...");
+
+                cert = LoadCertificateFromToken();
+            }
+            
+            // final check
+            if (cert == null)
+                throw new Exception("Certificate could not be retrieved from either Windows store or token.");
+
+            // export public certificate (DER) to stream — GroupDocs uses this to embed public certificate in the signed PDF
+            byte[] certBytes = cert.Export(X509ContentType.Cert);
+            using var certStream = new MemoryStream(certBytes);
+
+            // prepare GroupDocs signature and options
+            using var signature = new Signature.Signature(inputPdf);
+
+            var pkcs11Signer = new Pkcs11DigitalSigner(); // implements ICustomSignHash
+
+            var signOptions = new DigitalSignOptions(certStream)
+            {
+                Reason = "Approved",
+                Location = "Office",
+                Contact = "Admin",
+                AllPages = false,
+                Width = 160,
+                Height = 80,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Padding() { Bottom = 10, Right = 10 },
+                CustomSignHash = pkcs11Signer
+            };
+
+            // perform signing - GroupDocs will compute hash and call CustomSignHash
+            signature.Sign(outputPdf, signOptions);
         }
 
-        byte[] certBytes = cert.Export(X509ContentType.Cert); // DER format
-        using var certStream = new MemoryStream(certBytes);
-
-        Pkcs11DigitalSigner pcs11DigitalSigner = new Pkcs11DigitalSigner();
-
-        using var signature = new Signature(inputPdf);
-        DigitalSignOptions signOptions = new DigitalSignOptions(certStream)
+        private static X509Certificate2 LoadCertificateFromToken()
         {
-            Reason = "Approved",
-            Location = "India",
-            // certificate password
-            Password = "1234567890",
-            Contact = "JohnSmith",
-            AllPages = true,
-            Width = 80,
-            Height = 60,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Margin = new Padding() { Bottom = 10, Right = 10 },
-            CustomSignHash = pcs11DigitalSigner
-        };
+            X509Certificate2? cert;
+            var factories = new Pkcs11InteropFactories();
+            using (var pkcs11Library = factories.Pkcs11LibraryFactory.LoadPkcs11Library(
+                       factories, Pkcs11DigitalSigner.Pkcs11LibraryPath, Pkcs11DigitalSigner.AppType))
+            {
+                var slot = pkcs11Library.GetSlotList(SlotsType.WithTokenPresent).FirstOrDefault();
+                if (slot == null) throw new Exception("No PKCS#11 slot with token found.");
 
-        signature.Sign(outputPdf, signOptions);
-    }
+                using (var session = slot.OpenSession(SessionType.ReadOnly))
+                {
+                    session.Login(CKU.CKU_USER, Pkcs11DigitalSigner.UserPin);
 
-    private static bool ValidateInputOutputFiles(string inputPdf, string outputPdf)
-    {
-        if (!File.Exists(inputPdf))
-        {
-            Console.WriteLine("The input file does not exist.");
-            return true;
+                    try
+                    {
+                        // Search for certificate object on the token
+                        var certTemplate = new List<IObjectAttribute>
+                        {
+                            session.Factories.ObjectAttributeFactory.Create(CKA.CKA_CLASS, CKO.CKO_CERTIFICATE),
+                            session.Factories.ObjectAttributeFactory.Create(CKA.CKA_CERTIFICATE_TYPE, CKC.CKC_X_509)
+                        };
+
+                        var certObjects = session.FindAllObjects(certTemplate);
+                        if (certObjects.Count == 0)
+                            throw new Exception("No certificate found on the token.");
+
+                        // Read raw certificate value
+                        var attrs = session.GetAttributeValue(certObjects[0], new List<CKA> { CKA.CKA_VALUE });
+                        var rawCert = attrs[0].GetValueAsByteArray();
+                        cert = new X509Certificate2(rawCert);
+                    }
+                    finally
+                    {
+                        session.Logout();
+                    }
+                }
+            }
+
+            return cert;
         }
-
-        if (string.IsNullOrEmpty(outputPdf))
-        {
-            Console.WriteLine("The output file name is not specified.");
-            return true;
-        }
-
-        return false;
-    }
-}
-
-public class Pkcs11DigitalSigner : ICustomSignHash
-{
-    public byte[] CustomSignHash(byte[] signableHash, HashAlgorithm hashAlgorithm, SignatureContext signatureContext)
-    {
-        using IPkcs11Library pkcs11Library =
-            Settings.Factories.Pkcs11LibraryFactory.LoadPkcs11Library(Settings.Factories, Settings.Pkcs11LibraryPath,
-                Settings.AppType);
-        // Find first slot with token present
-        ISlot slot = Helpers.GetUsableSlot(pkcs11Library);
-
-        // Open RW session
-        using ISession session = slot.OpenSession(SessionType.ReadWrite);
-        // Login as normal user
-        session.Login(CKU.CKU_USER, Settings.NormalUserPin);
-
-        // Generate key pair
-        IObjectHandle publicKey = null;
-        IObjectHandle privateKey = null;
-        Helpers.GenerateKeyPair(session, out publicKey, out privateKey);
-
-        // Specify signing mechanism
-        IMechanism mechanism = session.Factories.MechanismFactory.Create(CKM.CKM_RSA_PKCS);
-
-        byte[] sourceData = ConvertUtils.Utf8StringToBytes("Hello world");
-
-        // Sign data
-        byte[] signature = session.SignRecover(mechanism, privateKey, sourceData);
-
-        // Do something interesting with signature
-
-        // Verify signature
-        bool isValid = false;
-        // Do something interesting with verification result and recovered data
-        byte[] recoveredData = session.VerifyRecover(mechanism, publicKey, signature, out isValid);
-
-        session.DestroyObject(privateKey);
-        session.DestroyObject(publicKey);
-        session.Logout();
-
-        return signature;
     }
 }
