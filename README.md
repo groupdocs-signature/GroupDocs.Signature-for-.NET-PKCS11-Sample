@@ -1,9 +1,9 @@
 # GroupDocs.Signature-for-.NET-PKCS11-Sample
 
-[![Product Page](https://img.shields.io/badge/Product%20Page-2865E0?style=for-the-badge&logo=appveyor&logoColor=white)](https://products.groupdocs.com/comparison/python-net/) 
-[![Docs](https://img.shields.io/badge/Docs-2865E0?style=for-the-badge&logo=Hugo&logoColor=white)](https://docs.groupdocs.com/comparison/python-net/) 
-[![Blog](https://img.shields.io/badge/Blog-2865E0?style=for-the-badge&logo=WordPress&logoColor=white)](https://blog.groupdocs.com/category/comparison/) 
-[![Free Support](https://img.shields.io/badge/Free%20Support-2865E0?style=for-the-badge&logo=Discourse&logoColor=white)](https://forum.groupdocs.com/c/comparison) 
+[![Product Page](https://img.shields.io/badge/Product%20Page-2865E0?style=for-the-badge&logo=appveyor&logoColor=white)](https://products.groupdocs.com/signature/python-net/) 
+[![Docs](https://img.shields.io/badge/Docs-2865E0?style=for-the-badge&logo=Hugo&logoColor=white)](https://docs.groupdocs.com/signature/net/) 
+[![Blog](https://img.shields.io/badge/Blog-2865E0?style=for-the-badge&logo=WordPress&logoColor=white)](https://blog.groupdocs.com/category/signature/) 
+[![Free Support](https://img.shields.io/badge/Free%20Support-2865E0?style=for-the-badge&logo=Discourse&logoColor=white)](https://forum.groupdocs.com/c/signature) 
 [![Temporary License](https://img.shields.io/badge/Temporary%20License-2865E0?style=for-the-badge&logo=rocket&logoColor=white)](https://purchase.groupdocs.com/temporary-license)
 
 
@@ -28,7 +28,7 @@ Pkcs11Interop is a free, open-source library. You can find more details [here](h
 
 This repository demonstrates how to sign PDF documents in .NET using **GroupDocs.Signature** together with a hardware token (dongle) via **Pkcs11Interop**. The signing process combines the convenience of GroupDocs with the security of PKCS#11 hardware tokens.
 
-[![diagram](https://github.com/groupdocs-signature/GroupDocs.Signature-for-.NET-PKCS11-Sample/blob/master/images/customhash_pkcs11_diagram.png)]
+![diagram](https://github.com/groupdocs-signature/GroupDocs.Signature-for-.NET-PKCS11-Sample/blob/master/images/customhash_pkcs11_diagram.png)
 
 
 1. **Provide a PDF Document** – You start by specifying the PDF file that you want to sign.  
