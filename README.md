@@ -11,7 +11,7 @@
 
 This repository demonstrates how to sign PDF documents with GroupDocs.Signature for .NET using a hardware token via Pkcs11Interop. It shows how to implement ICustomSignHash so that GroupDocs computes the hash while the token performs the signing. Certificates can be loaded from the Windows store or directly from the PKCS#11 device. The private key never leaves the token, ensuring secure digital signatures. This project serves as a reference for integrating PKCS#11-based signing into .NET applications. Use it to learn how to combine GroupDocs’ signing features with hardware-backed security.
 
-## Problem Statement
+## The Challenge: Secure PDF Signing with PKCS#11 Dongles and HSMs
 
 The **PKCS#11** standard (Cryptoki) defines a platform-independent API for interacting with cryptographic tokens and hardware security modules (HSM). These devices keep private keys inside a tamper-resistant boundary and perform signing operations on the device, which improves security and helps meet legal and regulatory requirements.
 
