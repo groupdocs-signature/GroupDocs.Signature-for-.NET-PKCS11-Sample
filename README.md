@@ -11,6 +11,23 @@
 
 This repository demonstrates how to sign PDF documents with GroupDocs.Signature for .NET using a hardware token via Pkcs11Interop. It shows how to implement ICustomSignHash so that GroupDocs computes the hash while the token performs the signing. Certificates can be loaded from the Windows store or directly from the PKCS#11 device. The private key never leaves the token, ensuring secure digital signatures. This project serves as a reference for integrating PKCS#11-based signing into .NET applications. Use it to learn how to combine GroupDocs’ signing features with hardware-backed security.
 
+## Problem Statement
+
+The **PKCS#11** standard (Cryptoki) defines a platform-independent API for interacting with cryptographic tokens and hardware security modules (HSM). These devices keep private keys inside a tamper-resistant boundary and perform signing operations on the device, which improves security and helps meet legal and regulatory requirements.
+
+While HSMs and PKCS#11 provide strong protection, they introduce practical challenges for developers building **PDF-signing** solutions:
+
+* **Complex low-level API** — developers must manage PKCS#11 concepts such as slots, tokens, sessions, PINs and object attributes to locate and use signing keys.  
+* **Integration gap with the PDF format** — producing standard, verifiable PDF signatures requires more than raw signature bytes: you must create signature fields, calculate digests over correct byte ranges, generate CMS/PKCS#7 containers, embed timestamps and optionally include validation data (DSS). Many examples only show low-level signing but real apps need document-level packaging.  
+* **Vendor and environment differences** — HSMs, smartcards, and USB dongles often require vendor modules, different attribute conventions and occasional vendor-specific workarounds, so code must be adaptable.  
+* **Compliance & operational concerns** — production systems need secure PIN handling, session/audit management, HSM key lifecycle processes, and adherence to local digital-signature regulations.  
+
+**Why this repo matters.** This sample demonstrates how to integrate **GroupDocs.Signature for .NET** with PKCS#11 tokens and dongles to apply secure, standards-compliant signatures to **PDF** documents. It shows how to load a PKCS#11 module, open sessions, find keys, perform HSM-backed signing and let GroupDocs handle the PDF-level signature packaging — reducing integration friction and improving security.
+
+**PKCS#11 and Dongles in India.** In India, most regulated eSigning workflows (income tax filing, corporate compliance, court submissions, etc.) require private keys stored on **USB Dongles** issued by licensed Certifying Authorities. These dongles use PKCS#11 as their interface, providing secure PIN-based authentication and hardware-backed signing. Because of this, PKCS#11 dongles are the most common way professionals and organizations sign **PDF documents** in compliance with Indian eSign regulations.
+
+**Custom hash signing.** This sample also highlights how PKCS#11 devices can be combined with **custom hash signing** in GroupDocs.Signature. Instead of letting the library handle all cryptographic operations internally, you can delegate the digest and signing steps to the PKCS#11 token. This provides flexibility for regulatory environments where specific hashing algorithms (e.g., SHA-256, SHA-384, SHA-512) and token-backed signing are required, while GroupDocs manages the rest of the PDF signature container.
+
 ### What is GroupDocs.Signature?
 
 **GroupDocs.Signature for .NET** is a powerful document signing API that enables developers to apply, verify, and manage electronic signatures in a wide variety of file formats (PDF, Word, Excel, images, presentations, etc.). It supports not only text, image, stamp, barcode and QR-code signatures, but also full digital signatures using **X.509/PKCS certificates**. 
@@ -117,6 +134,22 @@ While it enables document signing with hardware tokens, **we strongly recommend 
 
 We would greatly appreciate your feedback, test results, and suggestions for improvements.  
 Your input will help us refine this functionality and explore new ideas to make it more robust and user-friendly.
+
+## Related Topics to Investigate
+
+If you are working with PKCS#11 tokens and PDF signing, the following topics may be useful for further investigation:
+
+* **Custom Hash Signing with GroupDocs.Signature** – Learn how to delegate hashing and signing to the token:  
+  [Digital signing with custom hash](https://docs.groupdocs.com/signature/net/digital-signing-with-custom-hash/)
+   
+* **Custom Hash with Azure Key Vault** – See how GroupDocs enables custom-hash signing using Azure Key Vault instead of HSM/dongles:  
+  [Custom hash sign with Azure Key Vault](https://blog.groupdocs.com/signature/custom-hash-sign-with-azure-key-vault/)  
+
+* **Iterative / Incremental Digital Signing** – Understand how to append signatures sequentially without invalidating previous ones:  
+  [Iterative digital signing](https://blog.groupdocs.com/signature/iterative-digital-signing/)  
+
+* **Advanced Digital Signature Options** – Explore features like visible signature, timestamps, signature appearance, and more:  
+  [Sign document with digital signature (advanced)](https://docs.groupdocs.com/signature/net/sign-document-with-digital-signature-advanced/)  
 
 ## Keywords
 
